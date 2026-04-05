@@ -5,6 +5,7 @@ import com.akram.expensetracker.model.User;
 import com.akram.expensetracker.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.http.ResponseEntity;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -17,8 +18,16 @@ public class AuthController {
     private JwtUtil jwtUtil;
 
     @PostMapping("/register")
-    public User register(@RequestBody User user) {
-        return repo.save(user);
+    public ResponseEntity<?> register(@RequestBody User user) {
+
+        if (repo.findByEmail(user.getEmail()).isPresent()) {
+            return ResponseEntity
+                    .badRequest()
+                    .body("User already exists");
+        }
+
+        repo.save(user);
+        return ResponseEntity.ok("User registered successfully");
     }
 
     @PostMapping("/login")
